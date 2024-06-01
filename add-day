@@ -1,0 +1,66 @@
+#!/usr/bin/env amm
+import $ivy.`com.lihaoyi::os-lib:0.10.2`
+
+@arg(doc = "Kicks off a new day of Advent of Code!")
+@main
+def main(
+    @arg(doc = "Which day is it?")
+    day: Int,
+    @arg(doc = "Which year is it?")
+    year: Int,
+    @arg(doc = "Your session token (see web cookie).")
+    session: String
+): Unit = {
+  assert(1 to 25 contains day, "Day must be between 1 and 25 (inclusive).")
+  assert(session.nonEmpty, "Must be a valid session token.")
+
+  // Zero-padded day.
+  val dayZP = if (day < 10) s"0$day" else day.toString
+  
+  val inputFile = os.pwd / s"aoc$year" / "resources" / s"aoc$year" / s"Day${dayZP}.input.txt"
+  val codeFile  = os.pwd / s"aoc$year" / "src" / s"aoc$year" / s"Day${dayZP}.scala"
+  val testFile  = os.pwd / s"aoc$year" / "test" / "src" / s"aoc$year" / s"Day${dayZP}Test.scala"
+  
+  // Grab input file.
+  os.proc("curl", "--cookie", s"session=$session", s"https://adventofcode.com/$year/day/$day/input")
+    .call(stdout = inputFile)
+
+  // Create code file.
+  os.write(codeFile, s"""
+    |package aoc$year
+    |
+    |import scala.annotation.tailrec
+    |import aoc.Day
+    |
+    |object Day${dayZP} extends Day:
+    |
+    |  type Input = List[String]
+    |
+    |  def parse(xs: List[String]): Input = xs
+    |
+    |  def part1(input: Input) = 0
+    |  def part2(input: Input) = 0
+    |
+    |  final def main(args: Array[String]): Unit =
+    |    val in = parse(loadInput().toList)
+    |    solveP1(() => part1(in))
+    |    solveP2(() => part2(in))
+    |""".stripMargin.trim + "\n")
+  
+  // Create test file.
+  os.write(testFile, s"""
+    |package aoc$year
+    |
+    |import utest._
+    |
+    |object Day${dayZP}Test extends TestSuite:
+    |  val tests = Tests {
+    |    "Day${dayZP} should unit test appropriately" - {
+    |      1 + 1 ==> 2
+    |    }
+    |  }
+    |""".stripMargin.trim + "\n")
+  
+  // Open the files!
+  os.proc("code", Seq(codeFile, testFile, inputFile)).spawn()
+}

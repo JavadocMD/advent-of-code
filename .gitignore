@@ -1,0 +1,6 @@
+out/
+.bloop/
+.metals/
+.ammonite/
+
+scratch.worksheet.sc

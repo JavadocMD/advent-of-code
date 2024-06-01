@@ -1,0 +1,70 @@
+#!/usr/bin/env amm
+import $ivy.`com.lihaoyi::os-lib:0.10.2`
+
+@arg(doc = "Kicks off a new year of Advent of Code!")
+@main
+def main(
+    @arg(doc = "Which year is it?")
+    year: Int,
+): Unit = {
+  val inputFolder = os.pwd / s"aoc$year" / "resources" / s"aoc$year"
+  val codeFolder  = os.pwd / s"aoc$year" / "src" / s"aoc$year"
+  val testFolder  = os.pwd / s"aoc$year" / "test" / "src" / s"aoc$year"
+  
+  os.makeDir.all(inputFolder)
+  os.makeDir.all(codeFolder)
+  os.makeDir.all(testFolder)
+  
+  // Create "Answers" file.
+  os.write(inputFolder / "Answers.txt", "")
+
+  // Create "All" file.
+  os.write(codeFolder / "All.scala", s"""
+    |package aoc$year
+    |
+    |import scala.util.Try
+    |import aoc.Day
+    |
+    |object All:
+    |
+    |  val all_days = Seq[Day](
+    |    // Day01,
+    |    // Day02,
+    |    // Day03,
+    |    // Day04,
+    |    // Day05,
+    |    // Day06,
+    |    // Day07,
+    |    // Day08,
+    |    // Day09,
+    |    // Day10,
+    |    // Day11,
+    |    // Day12,
+    |    // Day13,
+    |    // Day14,
+    |    // Day15,
+    |    // Day16,
+    |    // Day17,
+    |    // Day18,
+    |    // Day19,
+    |    // Day20,
+    |    // Day21,
+    |    // Day22,
+    |    // Day23,
+    |    // Day24,
+    |    // Day25,
+    |  )
+    |
+    |  final def main(args: Array[String]): Unit =
+    |    all_days foreach { case day =>
+    |      println(s"> $${day.getClass.getSimpleName}:")
+    |      day.main(args)
+    |      println()
+    |    }
+    |    
+    |""".stripMargin.trim + "\n")
+}
+
+// TODO:
+// Also need to add to build.sc
+// And copy Day.scala (?)
