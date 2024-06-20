@@ -6,7 +6,9 @@ object aoc extends ScalaModule {
 
   def ivyDeps = Agg(
     ivy"org.scala-lang.modules::scala-parallel-collections:1.0.4",
-    ivy"org.apache.commons:commons-math3:3.6.1"
+    ivy"org.scala-lang.modules::scala-collection-contrib:0.3.0",
+    ivy"org.apache.commons:commons-math3:3.6.1",
+    ivy"com.lihaoyi::fastparse:3.1.0"
   )
 
   object test extends ScalaTests {
