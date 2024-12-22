@@ -10,13 +10,9 @@ object Day22 extends Day:
 
   def parse(xs: List[String]): Input = xs.map(_.toLong)
 
-  def mix(op: Long => Long)(secret: Long): Long = op(secret) ^ secret
-  def prune(secret: Long): Long                 = secret % 16777216L
-
-  val s1 = mix(_ * 64L) andThen prune
-  val s2 = mix(_ / 32L) andThen prune
-  val s3 = mix(_ * 2048L) andThen prune
-
+  inline def s1(n: Long)        = ((n << 6) ^ n) & 0xffffff
+  inline def s2(n: Long)        = ((n >> 5) ^ n) & 0xffffff
+  inline def s3(n: Long)        = ((n << 11) ^ n) & 0xffffff
   def nextSecret(n: Long): Long = s3(s2(s1(n)))
 
   def part1(input: Input) =
