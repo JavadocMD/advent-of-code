@@ -6,6 +6,8 @@ object Util:
   case class Vector2(x: Int, y: Int):
     def +(that: Vector2): Vector2     = Vector2(this.x + that.x, this.y + that.y)
     def -(that: Vector2): Vector2     = Vector2(this.x - that.x, this.y - that.y)
+    def *(that: Vector2): Vector2     = Vector2(this.x * that.y, this.y * that.y)
+    def /(that: Vector2): Vector2     = Vector2(this.x / that.y, this.y / that.y)
     def neighbors: List[Vector2]      = Direction.all.map(this + _)
     def manhattan(that: Vector2): Int = (that.x - this.x).abs + (that.y - this.y).abs
     override def toString(): String   = s"$x,$y"
