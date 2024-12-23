@@ -68,7 +68,7 @@ abstract class Day:
       val msg = s"Solution for Part $part did not match expected.\nExpected: ${ans.get}\nGot: $solnStr"
       throw new Exception(msg)
 
-    val ansChecked = ans.map(_ => "✔").getOrElse("➖")
+    val ansChecked = ans.map(_ => "✔ ").getOrElse("➖ ")
     println(s"$ansChecked $solnStr [${t1 - t0} ms]")
     soln
 
