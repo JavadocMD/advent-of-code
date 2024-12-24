@@ -27,3 +27,6 @@ EOF
 23:1366,<<EOF
 bs,cf,cn,gb,gk,jf,mp,qk,qo,st,ti,uc,xw
 EOF
+24:57344080719736,<<EOF
+cgq,fnr,kqk,nbc,svm,z15,z23,z39
+EOF
