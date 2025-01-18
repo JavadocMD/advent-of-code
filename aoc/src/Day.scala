@@ -65,10 +65,10 @@ abstract class Day:
       case (Some((_, x)), Part.Two) => Some(x)
 
     if (ans.isDefined) && (ans.get != solnStr) then
-      val msg = s"Solution for Part $Part did not match expected.\nExpected: ${ans.get}\nGot: $solnStr"
+      val msg = s"Solution for Part $part did not match expected.\nExpected: ${ans.get}\nGot: $solnStr"
       throw new Exception(msg)
 
-    val ansChecked = ans.map(_ => "✔").getOrElse("➖")
+    val ansChecked = ans.map(_ => "✔ ").getOrElse("➖ ")
     println(s"$ansChecked $solnStr [${t1 - t0} ms]")
     soln
 

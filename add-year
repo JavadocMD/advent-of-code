@@ -14,6 +14,9 @@ def main(
   os.makeDir.all(inputFolder)
   os.makeDir.all(codeFolder)
   os.makeDir.all(testFolder)
+  
+  // Create "Answers" file.
+  os.write(inputFolder / "Answers.txt", "")
 
   // Create "All" file.
   os.write(codeFolder / "All.scala", s"""
