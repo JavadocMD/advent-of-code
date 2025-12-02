@@ -7,7 +7,7 @@ object All:
 
   val all_days = Seq[Day](
     Day01,
-    // Day02,
+    Day02,
     // Day03,
     // Day04,
     // Day05,
