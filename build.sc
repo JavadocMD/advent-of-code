@@ -20,4 +20,4 @@ object aoc2020 extends AocYearModule
 object aoc2021 extends AocYearModule
 object aoc2022 extends AocYearModule
 object aoc2023 extends AocYearModule
-// object aoc2024 extends AocYearModule
+object aoc2024 extends AocYearModule
