@@ -15,7 +15,7 @@ trait AocYearModule extends ScalaModule {
   }
 }
 
-// object aoc2019 extends AocYearModule
+object aoc2019 extends AocYearModule
 // object aoc2020 extends AocYearModule
 // object aoc2021 extends AocYearModule
 // object aoc2022 extends AocYearModule
