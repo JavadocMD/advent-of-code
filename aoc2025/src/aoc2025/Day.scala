@@ -2,6 +2,7 @@ package aoc
 
 import scala.io.Source
 import scala.util.matching.Regex
+import scala.annotation.tailrec
 
 val dayRegex: Regex  = """^Day(\d{2}).*$""".r
 val yearRegex: Regex = """^aoc(\d{4})$""".r
@@ -26,19 +27,24 @@ abstract class Day:
     case yearRegex(y) => y.toInt
     case _            => throw new IllegalArgumentException("Unable to extract year.")
 
-  def load(resource: String, preserveBlanks: Boolean = false): Array[String] =
+  def load(resource: String): Array[String] =
     val source = Source.fromResource(resource)
     try {
-      val xs = source.getLines.toArray
-      // if xs.size == 0 then throw new Exception("Input load failure: no lines.")
-      // The lines iterator swallows the final blank line. Add it back in if desired.
-      // Helpful when the input is a series of blank-line-separated groups.
-      if preserveBlanks then xs :+ "" else xs
+      source.getLines.toArray
     } finally source.close()
 
-  def loadInput(preserveBlanks: Boolean = false): Array[String] =
+  def loadInput(): Array[String] =
     val name = f"aoc$year%04d/Day$day%02d.input.txt"
-    load(name, preserveBlanks)
+    load(name)
+
+  /** Groups input lines into chunks, as separated by a blank space. */
+  def chunkify(lines: List[String]): List[List[String]] =
+    @tailrec
+    def recurse(xs: List[String], acc: List[List[String]] = Nil): List[List[String]] =
+      val (chunk, rest) = xs.span(_ != "")
+      if chunk.isEmpty then acc.reverse
+      else recurse(rest.drop(1), chunk :: acc)
+    recurse(lines)
 
   lazy val answers: Option[(String, String)] =
     val lines = load(f"aoc$year%04d/Answers.txt").view
