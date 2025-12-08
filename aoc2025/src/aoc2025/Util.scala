@@ -75,3 +75,11 @@ object Util:
           recurse(rest ++ newPaths, visited + current)
 
     recurse(TreeSet((0L, start, start :: Nil)))
+
+  case class Vector3(x: Int, y: Int, z: Int):
+    override def toString(): String = s"($x,$y,$z)"
+
+  def lastOption[T](it: Iterator[T]): Option[T] =
+    var curr = Option.empty[T]
+    while it.hasNext do curr = Some(it.next)
+    curr
