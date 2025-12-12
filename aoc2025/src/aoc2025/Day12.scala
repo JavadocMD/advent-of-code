@@ -7,7 +7,7 @@ object Day12 extends Day:
 
   case class Region(width: Int, height: Int, number: List[Int]):
     val volume = width * height
-    def presentVolume(implicit presents: List[Present]) =
+    def presentVolume(using presents: List[Present]) =
       (number zip presents).map((N, P) => N * P.volume).sum
 
   case class Present(pattern: Vector[Vector[Char]]):
@@ -33,7 +33,7 @@ object Day12 extends Day:
     )
 
   def part1(input: Input) =
-    implicit val presents = input.presents
+    given List[Present] = input.presents
     input.regions
       .filter(r => r.presentVolume <= r.volume)
       .size
