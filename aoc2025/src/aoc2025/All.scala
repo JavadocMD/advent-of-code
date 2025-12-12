@@ -17,7 +17,7 @@ object All:
     Day09,
     Day10,
     Day11,
-    // Day12,
+    Day12,
   )
 
   final def main(args: Array[String]): Unit =
