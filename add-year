@@ -1,5 +1,17 @@
 #!/usr/bin/env amm
-import $ivy.`com.lihaoyi::os-lib:0.10.2`
+import $ivy.`com.lihaoyi::os-lib:0.11.6`
+
+// Append content to a file and leave file with a trailing newline.
+def append(path: os.Path, newContent: String): Unit = {
+  val prevContent = os.read(path).stripTrailing()
+  val nextContent = s"$prevContent\n$newContent\n"
+  os.write.over(path, nextContent)
+}
+
+// How many days are expected in this years' AoC?
+def expectedDays(year: Int): Int = {
+  if year < 2025 then 25 else 12
+}
 
 @arg(doc = "Kicks off a new year of Advent of Code!")
 @main
@@ -7,18 +19,109 @@ def main(
     @arg(doc = "Which year is it?")
     year: Int,
 ): Unit = {
-  val inputFolder = os.pwd / s"aoc$year" / "resources" / s"aoc$year"
   val codeFolder  = os.pwd / s"aoc$year" / "src" / s"aoc$year"
   val testFolder  = os.pwd / s"aoc$year" / "test" / "src" / s"aoc$year"
-  
-  os.makeDir.all(inputFolder)
-  os.makeDir.all(codeFolder)
-  os.makeDir.all(testFolder)
+  val inputFolder = os.pwd / s"aoc$year" / "resources" / s"aoc$year"
+  val allFolders = Seq(codeFolder, testFolder, inputFolder)
+
+  for f <- allFolders do
+    os.makeDir.all(f)
   
   // Create "Answers" file.
-  os.write(inputFolder / "Answers.txt", "")
+  os.write(inputFolder / "Answers.txt", "01:answer1,answer2\n")
+
+  // Create "Day.scala" file.
+  os.write(codeFolder / "Day.scala", """
+    |package aoc
+    |
+    |import scala.io.Source
+    |import scala.util.matching.Regex
+    |import scala.annotation.tailrec
+    |
+    |val dayRegex: Regex  = "^Day(\\d{2}).*$".r
+    |val yearRegex: Regex = "^aoc(\\d{4})$".r
+    |
+    |// We can use EOF to provide multi-line answer values in the rare case that happens.
+    |// EOF can be used in both values, either value, or neither -- so we have four cases.
+    |val answers1 = "(?ms)\\d{2}:<<EOF\\n(.+?)\\nEOF,<<EOF\\n(.+?)\\nEOF".r
+    |val answers2 = "(?ms)\\d{2}:<<EOF\\n(.+?)\\nEOF,(.+?)".r
+    |val answers3 = "(?ms)\\d{2}:(.+?),<<EOF\\n(.+?)\\nEOF".r
+    |val answers4 = "\\d{2}:(.+?),(.+?)".r
+    |
+    |enum Part:
+    |  case One, Two
+    |
+    |abstract class Day:
+    |
+    |  def day: Int = this.getClass.getSimpleName match
+    |    case dayRegex(d) => d.toInt
+    |    case _           => throw new IllegalArgumentException("Unable to extract day.")
+    |
+    |  def year: Int = this.getClass.getPackageName match
+    |    case yearRegex(y) => y.toInt
+    |    case _            => throw new IllegalArgumentException("Unable to extract year.")
+    |
+    |  def load(resource: String): Array[String] =
+    |    val source = Source.fromResource(resource)
+    |    try {
+    |      source.getLines.toArray
+    |    } finally source.close()
+    |
+    |  def loadInput(): Array[String] =
+    |    val name = f"aoc$year%04d/Day$day%02d.input.txt"
+    |    load(name)
+    |
+    |  /** Groups input lines into chunks, as separated by a blank space. */
+    |  def chunkify(lines: List[String]): List[List[String]] =
+    |    @tailrec
+    |    def recurse(xs: List[String], acc: List[List[String]] = Nil): List[List[String]] =
+    |      val (chunk, rest) = xs.span(_ != "")
+    |      if chunk.isEmpty then acc.reverse
+    |      else recurse(rest.drop(1), chunk :: acc)
+    |    recurse(lines)
+    |
+    |  lazy val answers: Option[(String, String)] =
+    |    val lines = load(f"aoc$year%04d/Answers.txt").view
+    |      .dropWhile(!_.startsWith(f"${day}%02d:"))
+    |      .takeWhile(!_.startsWith(f"${day + 1}%02d:"))
+    |      .mkString("\n")
+    |    lines match {
+    |      case answers1(a1, a2) => Some((a1, a2))
+    |      case answers2(a1, a2) => Some((a1, a2))
+    |      case answers3(a1, a2) => Some((a1, a2))
+    |      case answers4(a1, a2) => Some((a1, a2))
+    |      case _                => None
+    |    }
+    |
+    |  def solve[T](part: Part, solution: () => T): T =
+    |    val t0      = System.currentTimeMillis()
+    |    val soln    = solution()
+    |    val solnStr = soln.toString
+    |    val t1      = System.currentTimeMillis()
+    |
+    |    val ans = (answers, part) match
+    |      case (None, _)                => None
+    |      case (Some((x, _)), Part.One) => Some(x)
+    |      case (Some((_, x)), Part.Two) => Some(x)
+    |
+    |    if (ans.isDefined) && (ans.get != solnStr) then
+    |      val msg = s"Solution for Part $part did not match expected.\nExpected: ${ans.get}\nGot: $solnStr"
+    |      throw new Exception(msg)
+    |
+    |    val ansChecked = ans.map(_ => "✔ ").getOrElse("➖ ")
+    |    println(s"$ansChecked $solnStr [${t1 - t0} ms]")
+    |    soln
+    |
+    |  def solveP1[T](solution: () => T): T = solve(Part.One, solution)
+    |
+    |  def solveP2[T](solution: () => T): T = solve(Part.Two, solution)
+    |
+    |  def main(args: Array[String]): Unit
+    |
+    |""".stripMargin.trim + "\n")
 
   // Create "All" file.
+  val days = (1 to expectedDays(year)).map(i => f"    // Day$i%02d,\n").mkString.stripTrailing
   os.write(codeFolder / "All.scala", s"""
     |package aoc$year
     |
@@ -28,31 +131,7 @@ def main(
     |object All:
     |
     |  val all_days = Seq[Day](
-    |    // Day01,
-    |    // Day02,
-    |    // Day03,
-    |    // Day04,
-    |    // Day05,
-    |    // Day06,
-    |    // Day07,
-    |    // Day08,
-    |    // Day09,
-    |    // Day10,
-    |    // Day11,
-    |    // Day12,
-    |    // Day13,
-    |    // Day14,
-    |    // Day15,
-    |    // Day16,
-    |    // Day17,
-    |    // Day18,
-    |    // Day19,
-    |    // Day20,
-    |    // Day21,
-    |    // Day22,
-    |    // Day23,
-    |    // Day24,
-    |    // Day25,
+    |$days
     |  )
     |
     |  final def main(args: Array[String]): Unit =
@@ -61,10 +140,8 @@ def main(
     |      day.main(args)
     |      println()
     |    }
-    |    
     |""".stripMargin.trim + "\n")
-}
 
-// TODO:
-// Also need to add to build.sc
-// And copy Day.scala (?)
+  // Add year's module to build.sc
+  append(os.pwd / "build.sc", s"object aoc$year extends AocYearModule")
+}

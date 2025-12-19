@@ -1,5 +1,5 @@
 #!/usr/bin/env amm
-import $ivy.`com.lihaoyi::os-lib:0.10.2`
+import $ivy.`com.lihaoyi::os-lib:0.11.6`
 
 @arg(doc = "Kicks off a new day of Advent of Code!")
 @main
@@ -17,9 +17,13 @@ def main(
   // Zero-padded day.
   val dayZP = if (day < 10) s"0$day" else day.toString
   
-  val inputFile = os.pwd / s"aoc$year" / "resources" / s"aoc$year" / s"Day${dayZP}.input.txt"
   val codeFile  = os.pwd / s"aoc$year" / "src" / s"aoc$year" / s"Day${dayZP}.scala"
   val testFile  = os.pwd / s"aoc$year" / "test" / "src" / s"aoc$year" / s"Day${dayZP}Test.scala"
+  val inputFile = os.pwd / s"aoc$year" / "resources" / s"aoc$year" / s"Day${dayZP}.input.txt"
+  val allFiles = Seq(codeFile, testFile, inputFile)
+
+  for f <- allFiles do
+    os.makeDir.all(f / os.up)
   
   // Grab input file.
   os.proc("curl", "--cookie", s"session=$session", s"https://adventofcode.com/$year/day/$day/input")
@@ -62,5 +66,5 @@ def main(
     |""".stripMargin.trim + "\n")
   
   // Open the files!
-  os.proc("code", Seq(codeFile, testFile, inputFile)).spawn()
+  os.proc("code", allFiles).spawn()
 }
