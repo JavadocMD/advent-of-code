@@ -7,6 +7,7 @@ trait AocYearModule extends ScalaModule {
     ivy"org.scala-lang.modules::scala-parallel-collections:1.0.4",
     ivy"org.scala-lang.modules::scala-collection-contrib:0.3.0",
     ivy"org.apache.commons:commons-math3:3.6.1",
+    ivy"com.google.ortools:ortools-java:9.14.6206",
     ivy"com.lihaoyi::fastparse:3.1.0"
   )
   object test extends ScalaTests {
@@ -21,3 +22,4 @@ object aoc2021 extends AocYearModule
 object aoc2022 extends AocYearModule
 object aoc2023 extends AocYearModule
 object aoc2024 extends AocYearModule
+object aoc2025 extends AocYearModule
