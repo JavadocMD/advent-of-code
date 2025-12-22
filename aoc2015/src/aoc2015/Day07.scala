@@ -26,6 +26,8 @@ object Day07 extends Day:
     case s"NOT $in -> $out"           => Not(in, out)
     case s"$in -> $out"               => Assign(in, out)
 
+  lazy val input = parse(loadInput().toList)
+
   def evaluate(out: String, gates: List[Gate]): Int =
     import scala.collection.{mutable as m}
     val gatesByOutput = gates.map(_.byOut).toMap
@@ -48,16 +50,15 @@ object Day07 extends Day:
 
     eval(out)
 
-  def part1(input: Input) = evaluate("a", input)
+  lazy val part1 = evaluate("a", input)
 
-  def part2(input: Input) =
+  lazy val part2 =
     val input2 = input.updated(
       index = input.indexWhere(_.out == "b"),
-      elem = Assign("16076", "b"),
+      elem = Assign(part1.toString, "b"),
     )
     evaluate("a", input2)
 
   final def main(args: Array[String]): Unit =
-    val in = parse(loadInput().toList)
-    solveP1(() => part1(in))
-    solveP2(() => part2(in))
+    solveP1(() => part1)
+    solveP2(() => part2)
