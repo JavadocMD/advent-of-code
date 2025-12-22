@@ -8,7 +8,8 @@ trait AocYearModule extends ScalaModule {
     ivy"org.scala-lang.modules::scala-collection-contrib:0.3.0",
     ivy"org.apache.commons:commons-math3:3.6.1",
     ivy"com.google.ortools:ortools-java:9.14.6206",
-    ivy"com.lihaoyi::fastparse:3.1.0"
+    ivy"com.lihaoyi::fastparse:3.1.0",
+    ivy"com.lihaoyi::upickle:4.4.1",
   )
   object test extends ScalaTests {
     def ivyDeps       = Agg(ivy"com.lihaoyi::utest:0.8.3")

@@ -38,5 +38,16 @@ object Util:
         .filter(_._2 % step == 0)
         .map(_._1)
 
+  def loopPairs[T](xs: List[T]): Iterator[(T, T)] =
+    val a = LazyList.from(xs)
+    val b = LazyList.from(xs.tail) :+ xs.head
+    (a lazyZip b).iterator
+
+  def loopTriplets[T](xs: List[T]): Iterator[(T, T, T)] =
+    val a = LazyList.from(xs)
+    val b = LazyList.from(xs.tail) :+ xs.head
+    val c = LazyList.from(xs.tail.tail) :+ xs.head :+ xs.tail.head
+    (a lazyZip b lazyZip c).iterator
+
   extension (s: String) //
     def println: Unit = Predef.println(s)
