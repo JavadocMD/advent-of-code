@@ -38,6 +38,12 @@ object Util:
         .filter(_._2 % step == 0)
         .map(_._1)
 
+  extension [T](it: Iterator[T]) //
+    def lastOption: Option[T] =
+      var curr = Option.empty[T]
+      while it.hasNext do curr = Some(it.next)
+      curr
+
   def loopPairs[T](xs: List[T]): Iterator[(T, T)] =
     val a = LazyList.from(xs)
     val b = LazyList.from(xs.tail) :+ xs.head
