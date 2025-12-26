@@ -48,6 +48,7 @@ def main(
     |  lazy val part2 = 0
     |
     |  final def main(args: Array[String]): Unit =
+    |    input // eval input before timing starts
     |    solveP1(() => part1)
     |    solveP2(() => part2)
     |""".stripMargin.trim + "\n")
