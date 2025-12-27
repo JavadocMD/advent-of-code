@@ -3,4 +3,5 @@ out/
 .metals/
 .ammonite/
 
+.aoc-session
 scratch.worksheet.sc

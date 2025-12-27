@@ -61,15 +61,12 @@ def main(
     |    case yearRegex(y) => y.toInt
     |    case _            => throw new IllegalArgumentException("Unable to extract year.")
     |
-    |  def load(resource: String): Array[String] =
+    |  def load(resource: String): List[String] =
     |    val source = Source.fromResource(resource)
-    |    try {
-    |      source.getLines.toArray
-    |    } finally source.close()
+    |    try source.getLines.toList
+    |    finally source.close()
     |
-    |  def loadInput(): Array[String] =
-    |    val name = f"aoc$year%04d/Day$day%02d.input.txt"
-    |    load(name)
+    |  def loadInput(): List[String] = load(f"aoc$year%04d/Day$day%02d.input.txt")
     |
     |  /** Groups input lines into chunks, as separated by a blank space. */
     |  def chunkify(lines: List[String]): List[List[String]] =
