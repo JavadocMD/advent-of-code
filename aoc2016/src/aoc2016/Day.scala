@@ -57,10 +57,12 @@ abstract class Day:
     }
 
   def solve[T](part: Part, solution: () => T): T =
-    val t0      = System.currentTimeMillis()
-    val soln    = solution()
-    val solnStr = soln.toString
-    val t1      = System.currentTimeMillis()
+    val t0   = System.currentTimeMillis()
+    val soln = solution()
+    val t1   = System.currentTimeMillis()
+
+    val solnStr        = soln.toString
+    val solnStrDisplay = if solnStr.contains("\n") then s"\n$solnStr" else solnStr
 
     val ans = (answers, part) match
       case (None, _)                => None
@@ -68,11 +70,11 @@ abstract class Day:
       case (Some((_, x)), Part.Two) => Some(x)
 
     if (ans.isDefined) && (ans.get != solnStr) then
-      val msg = s"Solution for Part $part did not match expected.\nExpected: ${ans.get}\nGot: $solnStr"
+      val msg = s"Solution for Part $part did not match expected.\nExpected: ${ans.get}\nGot: $solnStrDisplay"
       throw new Exception(msg)
 
     val ansChecked = ans.map(_ => "✔ ").getOrElse("➖ ")
-    println(s"$ansChecked $solnStr [${t1 - t0} ms]")
+    println(s"$ansChecked $solnStrDisplay [${t1 - t0} ms]")
     soln
 
   def solveP1[T](solution: () => T): T = solve(Part.One, solution)
