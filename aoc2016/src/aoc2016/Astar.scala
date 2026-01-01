@@ -78,12 +78,12 @@ object Astar:
   /** Performs an A-star search to find the shortest path on a grid from start to goal. This is just a simplified
     * interface on `search` tailored for basic grids; we assume:
     *   - movement on a grid is orthogonal (N,S,E,W only)
-    *   - grid cells are either walkable or not walkable (walkability is not dynamic)
+    *   - grid cells are either walkable or not walkable
     *   - the cost to walk to a neighbor is simply 1
     *   - there is one start and one goal cell, and these are known in advance
     *
     * @param isWalkable
-    *   The set of walkable grid cells.
+    *   A function to check if a grid cell is walkable.
     * @param goal
     *   The goal cell.
     * @param start
@@ -91,9 +91,9 @@ object Astar:
     * @return
     *   Some(Result) containing the goal state, total cost, and path if found; None otherwise.
     */
-  def gridSearch(isWalkable: Set[Vector2], goal: Vector2, start: Vector2): Option[Result[Vector2]] =
+  def gridSearch(isWalkable: Vector2 => Boolean, goal: Vector2, start: Vector2): Option[Result[Vector2]] =
     search[Vector2](
-      neighbors = s => s.neighbors4.filter(isWalkable.contains).map(p => (p, 1L)),
+      neighbors = s => s.neighbors4.filter(isWalkable).map(p => (p, 1L)),
       heuristic = s => s.manhattan(goal),
       isGoal = s => s == goal,
       starts = start :: Nil,
