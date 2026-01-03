@@ -20,7 +20,7 @@ object All:
     Day12,
     Day13,
     Day14,
-    // Day15,
+    Day15,
     // Day16,
     // Day17,
     // Day18,
