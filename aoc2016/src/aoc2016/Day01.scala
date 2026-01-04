@@ -17,7 +17,7 @@ object Day01 extends Day:
     .toList
 
   lazy val part1 =
-    val src: (Direction, Vector2) = (N, Vector2.zero)
+    val src: (Dir4, Vector2) = (N, Vector2.zero)
     val dst = input.foldLeft(src):
       case ((dir, pos), move) =>
         val nextDir = dir.turn90(move.turn)
@@ -28,7 +28,7 @@ object Day01 extends Day:
   @tailrec
   def firstDouble(
       moves: List[Move],
-      dir: Direction = N,
+      dir: Dir4 = N,
       pos: Vector2 = Vector2.zero,
       visited: Set[Vector2] = Set.empty,
   ): Option[Vector2] = moves match

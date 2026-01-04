@@ -24,35 +24,42 @@ object Util:
 
     def s(x: String, y: String): Vector2 = Vector2(x.toInt, y.toInt)
 
+  case class Rectangle(topLeft: Vector2, bottomRight: Vector2):
+    def contains(point: Vector2): Boolean =
+      topLeft.x <= point.x && point.x <= bottomRight.x
+        && topLeft.y <= point.y && point.y <= bottomRight.y
+
   sealed trait Direction:
     val vector: Vector2
-  case object E extends Direction:
+  sealed trait Dir4 extends Direction
+  sealed trait Dir8 extends Direction
+  case object E extends Direction, Dir4, Dir8:
     val vector = Vector2(1, 0)
-  case object S extends Direction:
+  case object S extends Direction, Dir4, Dir8:
     val vector = Vector2(0, 1)
-  case object W extends Direction:
+  case object W extends Direction, Dir4, Dir8:
     val vector = Vector2(-1, 0)
-  case object N extends Direction:
+  case object N extends Direction, Dir4, Dir8:
     val vector = Vector2(0, -1)
-  case object NE extends Direction:
+  case object NE extends Direction, Dir8:
     val vector = Vector2(1, -1)
-  case object SE extends Direction:
+  case object SE extends Direction, Dir8:
     val vector = Vector2(1, 1)
-  case object SW extends Direction:
+  case object SW extends Direction, Dir8:
     val vector = Vector2(-1, 1)
-  case object NW extends Direction:
+  case object NW extends Direction, Dir8:
     val vector = Vector2(-1, -1)
 
   object Direction:
-    val all4 = List(E, S, W, N)
-    val all8 = List(E, SE, S, SW, W, NW, N, NE)
+    val all4 = List[Dir4](E, S, W, N)
+    val all8 = List[Dir8](E, SE, S, SW, W, NW, N, NE)
 
   sealed trait Turn
   case object Left  extends Turn
   case object Right extends Turn
 
-  extension (dir: Direction)
-    def turn90(turn: Turn): Direction = (dir, turn) match
+  extension (dir: Dir4)
+    def turn90(turn: Turn): Dir4 = (dir, turn) match
       case (E, Left)  => N
       case (E, Right) => S
       case (S, Left)  => E
@@ -61,7 +68,6 @@ object Util:
       case (W, Right) => N
       case (N, Left)  => W
       case (N, Right) => E
-      case _          => throw new Exception("turn90 only supports N,E,S,W directions")
 
   def memoize[A, B](fn: A => B): A => B =
     import scala.collection.{mutable as m}
