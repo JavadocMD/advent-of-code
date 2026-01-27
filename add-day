@@ -1,6 +1,11 @@
 #!/usr/bin/env amm
 import $ivy.`com.lihaoyi::os-lib:0.11.6`
 
+def createIfMissing(path: os.Path, contents: => String): Unit = {
+  if os.exists(path) then println(s"[SKIP] $path already exists.")
+  else os.write(path, contents)
+}
+
 @arg(doc = "Kicks off a new day of Advent of Code!")
 @main
 def main(
@@ -11,66 +16,72 @@ def main(
     @arg(doc = "Create test file? (Default: false)")
     createTest: Boolean = false,
 ): Unit = {
-  assert(1 to 25 contains day, "Day must be between 1 and 25 (inclusive).")
+  try {
+    assert(1 to 25 contains day, "Day must be between 1 and 25 (inclusive).")
 
-  val sessionFile = os.pwd / ".aoc-session"
-  assert(os.exists(sessionFile), "Session file not found. Run ./login first.")
-  
-  val sessionCookie = os.read(sessionFile).trim
-  assert(sessionCookie.nonEmpty, "Session token is empty. Run ./login first.")
+    val sessionFile = os.pwd / ".aoc-session"
+    assert(os.exists(sessionFile), "Session file not found. Run ./login first.")
+    
+    val sessionCookie = os.read(sessionFile).trim
+    assert(sessionCookie.nonEmpty, "Session token is empty. Run ./login first.")
 
-  // Zero-padded day.
-  val dayZP = if (day < 10) s"0$day" else day.toString
-  
-  val codeFile  = os.pwd / s"aoc$year" / "src" / s"aoc$year" / s"Day${dayZP}.scala"
-  val testFile  = os.pwd / s"aoc$year" / "test" / "src" / s"aoc$year" / s"Day${dayZP}Test.scala"
-  val inputFile = os.pwd / s"aoc$year" / "resources" / s"aoc$year" / s"Day${dayZP}.input.txt"
-  val allFiles = if createTest then Seq(codeFile, testFile, inputFile) else Seq(codeFile, inputFile)
+    // Session could also be expired, but we have to catch that after grabbing the input file.
 
-  for f <- allFiles do
-    os.makeDir.all(f / os.up)
-  
-  // Grab input file.
-  os.proc("curl", "--cookie", s"session=$sessionCookie", s"https://adventofcode.com/$year/day/$day/input")
-    .call(stdout = inputFile)
+    val dayZP = if (day < 10) s"0$day" else day.toString // zero-padded day    
+    val codeFile  = os.pwd / s"aoc$year" / "src" / s"aoc$year" / s"Day${dayZP}.scala"
+    val testFile  = os.pwd / s"aoc$year" / "test" / "src" / s"aoc$year" / s"Day${dayZP}Test.scala"
+    val inputFile = os.pwd / s"aoc$year" / "resources" / s"aoc$year" / s"Day${dayZP}.input.txt"
+    val allFiles = if createTest then Seq(codeFile, testFile, inputFile) else Seq(codeFile, inputFile)
 
-  // Create code file.
-  if allFiles.contains(codeFile) then
-    os.write(codeFile, s"""
-      |package aoc$year
-      |
-      |import scala.annotation.tailrec
-      |import aoc.Day
-      |
-      |object Day${dayZP} extends Day:
-      |
-      |  lazy val input = loadInput()
-      |
-      |  lazy val part1 = 0
-      |
-      |  lazy val part2 = 0
-      |
-      |  final def main(args: Array[String]): Unit =
-      |    input // eval input before timing starts
-      |    solveP1(() => part1)
-      |    solveP2(() => part2)
-      |""".stripMargin.trim + "\n")
-  
-  // Create test file.
-  if allFiles.contains(testFile) then
-    os.write(testFile, s"""
-      |package aoc$year
-      |
-      |import utest._
-      |
-      |object Day${dayZP}Test extends TestSuite:
-      |  val tests = Tests {
-      |    "Day${dayZP} should unit test appropriately" - {
-      |      1 + 1 ==> 2
-      |    }
-      |  }
-      |""".stripMargin.trim + "\n")
-  
-  // Open the files!
-  os.proc("code", allFiles).spawn()
+    for f <- allFiles do
+      os.makeDir.all(f / os.up)
+    
+    // Grab input file.
+    val inputCurl = os.proc("curl", "--cookie", s"session=$sessionCookie", s"https://adventofcode.com/$year/day/$day/input").call()
+    val inputText = inputCurl.out.text()
+    assert(!inputText.contains("<title>500 Internal Server Error</title>"), "Error downloading input. Run ./login and try again.")
+    os.write.over(inputFile, inputText)
+
+    // Create code file.
+    if allFiles.contains(codeFile) then
+      createIfMissing(codeFile, s"""
+        |package aoc$year
+        |
+        |import scala.annotation.tailrec
+        |import aoc.Day
+        |
+        |object Day${dayZP} extends Day:
+        |
+        |  lazy val input = loadInput()
+        |
+        |  lazy val part1 = 0
+        |
+        |  lazy val part2 = 0
+        |
+        |  final def main(args: Array[String]): Unit =
+        |    input // eval input before timing starts
+        |    solveP1(() => part1)
+        |    solveP2(() => part2)
+        |""".stripMargin.trim + "\n")
+    
+    // Create test file.
+    if allFiles.contains(testFile) then
+      createIfMissing(testFile, s"""
+        |package aoc$year
+        |
+        |import utest._
+        |
+        |object Day${dayZP}Test extends TestSuite:
+        |  val tests = Tests {
+        |    "Day${dayZP} should unit test appropriately" - {
+        |      1 + 1 ==> 2
+        |    }
+        |  }
+        |""".stripMargin.trim + "\n")
+    
+    // Open the files!
+    os.proc("code", allFiles).spawn()
+  } catch {
+    case e: AssertionError => println(s"\u001b[31m[ERROR] ${e.getMessage()}\u001b[0m")
+  }
 }
